@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Store Items</title>
+<script src="https://unpkg.com/vue@3"></script>
+<style>
+table { border-collapse: collapse; }
+td, th { border: 1px solid #ccc; padding: 4px 8px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div v-if="!token">
+    <h2>Вход</h2>
+    <input v-model="username" placeholder="Имя пользователя">
+    <input type="password" v-model="password" placeholder="Пароль">
+    <button @click="login">Войти</button>
+    <p style="color:red" v-if="error">{{ error }}</p>
+  </div>
+  <div v-else>
+    <h2>Товары</h2>
+    <input v-model="search" @input="reload" placeholder="Поиск">
+    <table>
+      <thead>
+        <tr><th>ID</th><th>Название</th><th>Цена</th><th>Кол-во</th><th>Год</th></tr>
+      </thead>
+      <tbody>
+        <tr v-for="item in items" :key="item.id">
+          <td>{{ item.id }}</td>
+          <td>{{ item.name }}</td>
+          <td>{{ item.price }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.release_year }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <button @click="prev" :disabled="page<=1">Назад</button>
+    <span>Страница {{ page }}</span>
+    <button @click="next" :disabled="page*size>=total">Вперёд</button>
+  </div>
+</div>
+<script>
+const { createApp } = Vue;
+createApp({
+  data(){
+    return {
+      username:'',
+      password:'',
+      token: localStorage.getItem('token'),
+      items:[],
+      page:1,
+      size:5,
+      total:0,
+      search:'',
+      error:''
+    }
+  },
+  mounted(){ if(this.token) this.load(); },
+  methods:{
+    login(){
+      fetch('/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:this.username,password:this.password})})
+        .then(r=>{if(!r.ok) throw new Error(); return r.json();})
+        .then(d=>{ this.token=d.token; localStorage.setItem('token',d.token); this.load(); })
+        .catch(()=>{ this.error='Неверные данные'; });
+    },
+    load(){
+      fetch(`/items?page=${this.page}&size=${this.size}&q=${encodeURIComponent(this.search)}`, {headers:{'Authorization':'Bearer '+this.token}})
+        .then(r=>r.json())
+        .then(d=>{ this.items=d.items; this.total=d.total; });
+    },
+    reload(){ this.page=1; this.load(); },
+    next(){ this.page++; this.load(); },
+    prev(){ if(this.page>1){ this.page--; this.load(); } }
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
