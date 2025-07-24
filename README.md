@@ -19,8 +19,13 @@
    ```bash
    python server.py
    ```
-6. Откройте файл `frontend/index.html` в браузере. Для входа используйте логин
-   `admin` и пароль `password`.
+6. Запустите простой HTTP-сервер в папке `frontend`:
+   ```bash
+   cd frontend
+   python -m http.server 8000
+   ```
+   Затем зайдите на [http://localhost:8000/](http://localhost:8000/) и войдите с
+   логином `admin` и паролем `password`.
 
 Если всё прошло успешно, перед вами появится таблица товаров с поиском и
 пагинацией.
@@ -44,7 +49,12 @@
   docker build -t store-app .
   docker run -p 5000:5000 store-app
   ```
-  Затем откройте `frontend/index.html`.
+  Затем в другом терминале запустите HTTP-сервер в папке `frontend` и
+  откройте [http://localhost:8000/](http://localhost:8000/) в браузере:
+  ```bash
+  cd frontend
+  python -m http.server 8000
+  ```
 
 Независимо от выбранного способа, база данных хранится в файле `store.db` в
 корне проекта.
@@ -52,7 +62,7 @@
 ## Подключение фронтенда
 
 Файл `frontend/index.html` уже подключает стили [Bootstrap 5](https://getbootstrap.com/) через CDN.
-После запуска сервера просто откройте этот HTML‑файл в браузере.
+После запуска сервера его следует открывать через любой статический HTTP‑сервер, например `python -m http.server` в каталоге `frontend`.
 Если сервер работает на другом хосте или порту, при необходимости
 измените URL запросов в коде страницы.
 
@@ -68,6 +78,6 @@
    ```bash
    python server.py
    ```
-5. Откройте `frontend/index.html` в браузере или через расширение **Live Server**.
+5. Запустите статический сервер (например Live Server или `python -m http.server` в папке `frontend`) и откройте страницу по адресу `http://localhost:8000/`.
 
 Вы также можете настроить конфигурацию отладчика для `server.py` через меню "Run and Debug".
